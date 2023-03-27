@@ -59,6 +59,7 @@ func Execute(serve serveFn) {
 	runCmd.Flags().StringP("root", "r", "/opt", "ssh root")
 	runCmd.Flags().StringP("private-key", "i", os.Getenv("HOME")+`/.ssh/id_rsa`, "path to private ssh key")
 	runCmd.Flags().StringP("serve-port", "P", "2049", "local port to serve nfs server on")
+	runCmd.Flags().BoolP("skip-mount", "s", false, "skip mount, only serve")
 	runCmd.Flags().StringP("mount-options", "o", "", "options to mount with, default options are OS dependent")
 	runCmd.Flags().StringP("mount-path", "m", ".", "path to mount the ssh fs on")
 

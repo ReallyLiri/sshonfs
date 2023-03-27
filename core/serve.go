@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -33,18 +34,25 @@ func Serve(config *cmd.Config) (io.Closer, error) {
 		fmt.Printf("serve failed: %v", err)
 	}()
 
-	log.Printf("mounting at '%v'", config.MountPath)
-	umount(config.MountPath)
-	err = mount(config.MountOptions, config.MountPath, config.LocalServePort)
-	if err != nil {
-		return nil, err
+	mountPath := config.MountPath
+	if config.SkipMount {
+		mountPath = ""
+	} else {
+		log.Printf("mounting at '%v'", mountPath)
+		os.MkdirAll(mountPath, 0777)
+		umount(mountPath)
+		err = mount(config.MountOptions, mountPath, config.LocalServePort)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return &closer{mountPoint: config.MountPath, listener: listener}, nil
+
+	return &closer{mountPoint: mountPath, listener: listener}, nil
 }
 
 func mount(mountOptions string, mountPoint string, servePort string) error {
 	if mountOptions == "" {
-		switch os := runtime.GOOS; os {
+		switch runtime.GOOS {
 		case "windows":
 			mountOptions = fmt.Sprintf("port=%v,mountport=%v", servePort, servePort)
 		case "darwin":
@@ -73,7 +81,9 @@ func (u *closer) Close() error {
 	}()
 	go func() {
 		defer wg.Done()
-		umount(u.mountPoint)
+		if u.mountPoint != "" {
+			umount(u.mountPoint)
+		}
 	}()
 	wg.Wait()
 	return nil

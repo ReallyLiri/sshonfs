@@ -1,5 +1,8 @@
 # ssh-on-nfs
 
+Cross-platform solution to mount a file system accessible via ssh on a local path.
+
+![icon](sshonfs.png)
 
 ## Install
 
@@ -24,7 +27,9 @@ Flags:
   -i, --private-key string     path to private ssh key (default "/Users/liri/.ssh/id_rsa")
   -r, --root string            ssh root (default "/opt")
   -P, --serve-port string      local port to serve nfs server on (default "2049")
+  -s, --skip-mount             skip mount, only serve
   -u, --username string        ssh username (default "root")
+      --version                version for sshonfs
 ```
 
 i.e

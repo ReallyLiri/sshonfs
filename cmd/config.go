@@ -7,6 +7,7 @@ type Config struct {
 	SshRootPath        string `mapstructure:"root"`
 	PrivateKeyFilePath string `mapstructure:"private-key"`
 	LocalServePort     string `mapstructure:"serve-port"`
+	SkipMount          bool   `mapstructure:"skip-mount"`
 	MountOptions       string `mapstructure:"mount-options"`
 	MountPath          string `mapstructure:"mount-path"`
 }
