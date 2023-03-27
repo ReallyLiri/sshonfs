@@ -3,14 +3,15 @@ package core
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/pkg/sftp"
 	"github.com/reallyliri/sshonfs/cmd"
 	"github.com/willscott/go-nfs"
+	"github.com/willscott/go-nfs/helpers"
+	"golang.org/x/crypto/ssh"
 	"io"
 	"log"
 	"net"
 	"os"
-	"os/exec"
-	"runtime"
 	"strings"
 	"sync"
 )
@@ -50,19 +51,32 @@ func Serve(config *cmd.Config) (io.Closer, error) {
 	return &closer{mountPoint: mountPath, listener: listener}, nil
 }
 
-func mount(mountOptions string, mountPoint string, servePort string) error {
-	if mountOptions == "" {
-		switch runtime.GOOS {
-		case "windows":
-			mountOptions = fmt.Sprintf("port=%v,mountport=%v", servePort, servePort)
-		case "darwin":
-			fmt.Println("Running on macOS")
-			mountOptions = fmt.Sprintf("port=%v,mountport=%v", servePort, servePort)
-		default:
-			mountOptions = fmt.Sprintf("port=%v,mountport=%v,nfsvers=3,noacl,tcp", servePort, servePort)
-		}
+func newHandler(config *cmd.Config) (nfs.Handler, error) {
+	sshConf, err := sshConfig(config)
+	if err != nil {
+		return nil, err
 	}
-	return runCommand("mount", "-o", mountOptions, "-t", "nfs", "localhost:/", mountPoint)
+
+	sshAddress := config.SshAddress
+	if !strings.Contains(sshAddress, ":") {
+		sshAddress = sshAddress + ":22"
+	}
+	conn, err := ssh.Dial("tcp", sshAddress, sshConf)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to ssh dial to '%v'", sshAddress)
+	}
+
+	sftpClient, err := sftp.NewClient(conn)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create sftp client")
+	}
+
+	bfs := &sshFs{
+		sftpClient: sftpClient,
+		sshRoot:    config.SshRootPath,
+	}
+
+	return helpers.NewCachingHandler(helpers.NewNullAuthHandler(bfs), 1024*1024), nil
 }
 
 type closer struct {
@@ -86,19 +100,5 @@ func (u *closer) Close() error {
 		}
 	}()
 	wg.Wait()
-	return nil
-}
-
-func umount(mountPoint string) error {
-	return runCommand("umount", mountPoint)
-}
-
-func runCommand(name string, args ...string) error {
-	log.Printf("running '%v %v'", name, strings.Join(args, " "))
-	cmd := exec.Command(name, args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return errors.Wrapf(err, "%v command failed to execute\n%v", name, string(output))
-	}
 	return nil
 }

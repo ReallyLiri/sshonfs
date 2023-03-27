@@ -10,6 +10,20 @@ Cross-platform solution to mount a file system accessible via ssh on a local pat
 go install github.com/reallyliri/sshonfs@latest
 ```
 
+## Pre-requisites
+
+### Linux
+
+Make sure you have `nfs-common` installed (i.e `apt install nfs-common`).
+
+### Mac
+
+Enable NFS: `sudo nfsd enable`.
+
+### Windows
+
+TBD
+
 ## Usage
 
 ```shell
