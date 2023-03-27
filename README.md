@@ -22,7 +22,7 @@ Enable NFS: `sudo nfsd enable`.
 
 ### Windows
 
-TBD
+Server is up and running, but I couldn't make mount work, help is appreciated.
 
 ## Usage
 
