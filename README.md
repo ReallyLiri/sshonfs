@@ -1,10 +1,10 @@
 # ssh-on-nfs
 
-## Build
+
+## Install
 
 ```shell
-go build -o bin/sshonfs .
-sudo cp bin/sshonfs /usr/local/bin/
+go install github.com/reallyliri/sshonfs@latest
 ```
 
 ## Usage
@@ -31,4 +31,10 @@ i.e
 
 ```shell
 sshonfs -a aws-server -m ~/efs-test -i ~/.ssh/aws.pem -r /mnt/efs/ -P 2049 -u ubuntu
+```
+
+## Build
+
+```shell
+go build -o bin/sshonfs .
 ```
