@@ -2,6 +2,8 @@
 
 Cross-platform solution to mount a file system accessible via ssh on a local path.
 
+(Though Windows still don't work...)
+
 ![icon](sshonfs.png)
 
 ## Install
@@ -38,7 +40,7 @@ Flags:
   -o, --mount-options string   options to mount with, default options are OS dependent
   -m, --mount-path string      path to mount the ssh fs on (default ".")
   -p, --password string        ssh password
-  -i, --private-key string     path to private ssh key (default "/Users/liri/.ssh/id_rsa")
+  -i, --private-key string     path to private ssh key (default "~/.ssh/id_rsa")
   -r, --root string            ssh root (default "/opt")
   -P, --serve-port string      local port to serve nfs server on (default "2049")
   -s, --skip-mount             skip mount, only serve
