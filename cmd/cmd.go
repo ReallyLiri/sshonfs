@@ -15,8 +15,9 @@ type serveFn func(*Config) (io.Closer, error)
 
 func Execute(serve serveFn) {
 	runCmd := &cobra.Command{
-		Use:   "sshonfs",
-		Short: "access remote fs using ssh on top of nfs",
+		Use:     "sshonfs",
+		Short:   "access remote fs using ssh on top of nfs",
+		Version: "1.0",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			if err := viper.BindPFlags(cmd.Flags()); err != nil {
 				log.Fatalf("could not bind flags: %v", err)
